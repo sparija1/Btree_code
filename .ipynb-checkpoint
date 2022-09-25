@@ -1,0 +1,408 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 119,
+   "id": "908f1925",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import json\n",
+    "\n",
+    "with open('familytreefinal.json') as f:\n",
+    "    #print(f)\n",
+    "    data = json.load(f)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 120,
+   "id": "89d54bea",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class Node:\n",
+    "    def __init__(self,key,Name = None,BirthYear = None,DeathYear = None, Id = None, Age = None, Validity = None):\n",
+    "        self.key = key\n",
+    "        self.left = None\n",
+    "        self.right = None\n",
+    "        self.Name = key.get('Name')\n",
+    "        self.BirthYear = key.get('BirthYear')\n",
+    "        self.DeathYear = key.get('DeathYear')\n",
+    "        self.Id = key.get('Name')\n",
+    "        self.Age = Age\n",
+    "        self.Validity = Validity\n",
+    "        \n",
+    "def parse_json(treedata):\n",
+    "    if isinstance(treedata,dict) and \"Members\" in treedata.keys():\n",
+    "        node = Node(treedata)\n",
+    "        \n",
+    "        if node.DeathYear is not None and node.BirthYear is not None and node.DeathYear>=node.BirthYear:\n",
+    "            node.Age = str(int(node.DeathYear)- int(node.BirthYear)- 1)\n",
+    "        \n",
+    "        #print(node.Name)\n",
+    "        node.left = parse_json(treedata['Members'][0])\n",
+    "        \n",
+    "        if node.DeathYear is not None and node.BirthYear is not None and int(node.left.BirthYear) > int(node.BirthYear) and int(node.left.BirthYear) < int(node.DeathYear) :\n",
+    "            node.left.Validity = \"Valid\"\n",
+    "            \n",
+    "        elif node.BirthYear is None and node.DeathYear is None:\n",
+    "            node.left.Validity = \"Valid\"\n",
+    "        \n",
+    "        else:\n",
+    "            node.left.Validity = \"Invalid\"\n",
+    "            \n",
+    "        node.right = parse_json(treedata['Members'][1])\n",
+    "        \n",
+    "        if node.DeathYear is not None and node.BirthYear is not None and int(node.right.BirthYear) > int(node.BirthYear) and int(node.right.BirthYear) < int(node.DeathYear) :\n",
+    "            node.right.Validity = \"Valid\"\n",
+    "            \n",
+    "        elif node.BirthYear is None and node.DeathYear is None:\n",
+    "            node.right.Validity = \"Valid\"\n",
+    "            \n",
+    "        else:\n",
+    "            node.right.Validity = \"Invalid\"    \n",
+    "        \n",
+    "#   elif treedata.get(\"Members\") is None:\n",
+    "#         node = Nodex(treedata)\n",
+    "    else:\n",
+    "        node = Node(treedata)\n",
+    "        if node.DeathYear is not None and node.BirthYear is not None and node.DeathYear>=node.BirthYear:\n",
+    "            node.Age = str(int(node.DeathYear)- int(node.BirthYear)- 1)\n",
+    "        #print(node.Name)\n",
+    "    #print(node.Name)\n",
+    "    return node"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 121,
+   "id": "7bb21158",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "COUNT = [10]\n",
+    "\n",
+    "def display(root, space=0) :\n",
+    " \n",
+    "    # Base case\n",
+    "    if (root == None) :\n",
+    "        return\n",
+    " \n",
+    "    # Increase distance between levels\n",
+    "    space += COUNT[0]\n",
+    " \n",
+    "    # Process right child first\n",
+    "    display(root.right, space)\n",
+    " \n",
+    "    # Print current node after space\n",
+    "    # count\n",
+    "    print()\n",
+    "    for i in range(COUNT[0], space):\n",
+    "        print(end = \" \")\n",
+    "    print(root.Name,root.Age,root.Validity)\n",
+    "    \n",
+    "    \n",
+    " \n",
+    "    # Process left child\n",
+    "    display(root.left, space)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 122,
+   "id": "df2e4ddb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "treedata = data[\"lineage\"]\n",
+    "btree = parse_json(treedata)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 123,
+   "id": "6da02dd8",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "                              Third+/// 93 Valid\n",
+      "\n",
+      "                    Second++ 28 Valid\n",
+      "\n",
+      "                              Third+/ 55 Invalid\n",
+      "\n",
+      "          First-- 47 Valid\n",
+      "\n",
+      "                    Second+ 68 Valid\n",
+      "\n",
+      "FamilyTree None None\n",
+      "\n",
+      "                              Third-// 35 Valid\n",
+      "\n",
+      "                    Second-- 61 Valid\n",
+      "\n",
+      "                              Third-/ 55 Valid\n",
+      "\n",
+      "          First- 42 Valid\n",
+      "\n",
+      "                              Third-- 27 Valid\n",
+      "\n",
+      "                    Second- 54 Valid\n",
+      "\n",
+      "                              Third- 62 Valid\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "\n",
+    "display(btree)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 124,
+   "id": "f902f4ad",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Name_Age_List = {}\n",
+    "\n",
+    "\n",
+    "def display(root, space=0) :\n",
+    " \n",
+    "    # Base case\n",
+    "    if (root == None) :\n",
+    "        return\n",
+    " \n",
+    "    # Increase distance between levels\n",
+    "    space += COUNT[0]\n",
+    " \n",
+    "    # Process right child first\n",
+    "    display(root.right, space)\n",
+    " \n",
+    "    # Print current node after space\n",
+    "    # count\n",
+    "    print()\n",
+    "    for i in range(COUNT[0], space):\n",
+    "        print(end = \" \")\n",
+    "    print(root.Name,root.Age,root.Validity)\n",
+    "    Name_Age_List.update({root.Name:root.Age})\n",
+    "    \n",
+    "    \n",
+    " \n",
+    "    # Process left child\n",
+    "    display(root.left, space)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 125,
+   "id": "3f9215bd",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\n",
+      "                              Third+/// 93 Valid\n",
+      "\n",
+      "                    Second++ 28 Valid\n",
+      "\n",
+      "                              Third+/ 55 Invalid\n",
+      "\n",
+      "          First-- 47 Valid\n",
+      "\n",
+      "                    Second+ 68 Valid\n",
+      "\n",
+      "FamilyTree None None\n",
+      "\n",
+      "                              Third-// 35 Valid\n",
+      "\n",
+      "                    Second-- 61 Valid\n",
+      "\n",
+      "                              Third-/ 55 Valid\n",
+      "\n",
+      "          First- 42 Valid\n",
+      "\n",
+      "                              Third-- 27 Valid\n",
+      "\n",
+      "                    Second- 54 Valid\n",
+      "\n",
+      "                              Third- 62 Valid\n"
+     ]
+    }
+   ],
+   "source": [
+    "display(btree)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 126,
+   "id": "2bf14ed9",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Name_Age_List.pop(\"FamilyTree\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "211acda8",
+   "metadata": {},
+   "source": [
+    "## c.Print all family members and their age "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 127,
+   "id": "ead3865b",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'Third+///': '93',\n",
+       " 'Second++': '28',\n",
+       " 'Third+/': '55',\n",
+       " 'First--': '47',\n",
+       " 'Second+': '68',\n",
+       " 'Third-//': '35',\n",
+       " 'Second--': '61',\n",
+       " 'Third-/': '55',\n",
+       " 'First-': '42',\n",
+       " 'Third--': '27',\n",
+       " 'Second-': '54',\n",
+       " 'Third-': '62'}"
+      ]
+     },
+     "execution_count": 127,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "Name_Age_List"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e6e3c3e8",
+   "metadata": {},
+   "source": [
+    "## d. Order age of family members in ascending order"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 128,
+   "id": "f9e60ee0",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[('Third--', '27'),\n",
+       " ('Second++', '28'),\n",
+       " ('Third-//', '35'),\n",
+       " ('First-', '42'),\n",
+       " ('First--', '47'),\n",
+       " ('Second-', '54'),\n",
+       " ('Third+/', '55'),\n",
+       " ('Third-/', '55'),\n",
+       " ('Second--', '61'),\n",
+       " ('Third-', '62'),\n",
+       " ('Second+', '68'),\n",
+       " ('Third+///', '93')]"
+      ]
+     },
+     "execution_count": 128,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\n",
+    "list1 = sorted(Name_Age_List.items(), key =lambda item: item[1])\n",
+    "list1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f7644aca",
+   "metadata": {},
+   "source": [
+    "## i. Who lived longest (name and age) in this lineage?  Who died the youngest (name and age)?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 129,
+   "id": "b914e7bc",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(('Third+///', '93'), ('Third--', '27'))"
+      ]
+     },
+     "execution_count": 129,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "longest_member = list1[-1]\n",
+    "youngest_member = list1[0]\n",
+    "\n",
+    "longest_member,youngest_member"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc142fdf",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d1b68207",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.12"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
